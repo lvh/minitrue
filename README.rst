@@ -44,7 +44,7 @@ The code is available under the very permissive `ISC license`_.
 Contribution is welcomed through the `Github project page`_.
 
 .. _`ISC license`: http://www.isc.org/software/license
-.. _`Github project page`: 
+.. _`Github project page`: https://github.com/lvh/minitrue
 
 IGNORANCE IS STRENGTH
 =====================
