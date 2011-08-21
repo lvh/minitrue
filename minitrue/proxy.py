@@ -107,6 +107,8 @@ class MinitrueRequest(proxy.ProxyRequest):
         """
         Processes this request.
         """
+        self.mangle()
+
         url = self._getURL()
 
         host, port = self._getHostAndPort(url.netloc, url.scheme)
@@ -186,6 +188,7 @@ class Minitrue(proxy.Proxy):
         """
         kwargs.update(self.kwargs)
         request = self.requestFactoryClass(*args, **kwargs)
+        request.mangle = lambda: self.requestMangler(request)
         return request
 
 

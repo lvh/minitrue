@@ -72,6 +72,8 @@ def requestMangler(request):
     """
     Modifies requests for oldspeak into requests for newspeak.
     """
+    headers = request.requestHeaders
+    headers.setRawHeaders("Accept-Language", ["newspeak"])
 
 
 @responseManglingProxyConstructor.kwarg
@@ -174,7 +176,7 @@ class RequestManglingTest(ProxyTestMixin, TestCase):
     proxyConstructor = requestManglingProxyConstructor
 
     def getInOldspeak(self, path="/", query="", fragment="", proxy=True):
-        headers = {"Accept-Language": ["oldspeak"]}
+        headers = {"Accept-Language": "oldspeak"}
         return self.get(path, query, fragment, headers, proxy)
 
 
