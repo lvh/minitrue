@@ -19,5 +19,4 @@ setup(name='minitrue',
         "License :: OSI Approved :: ISC License (ISCL)",
         "Topic :: Internet :: Proxy Servers",
         "Topic :: Internet :: WWW/HTTP",
-        "Topic :: Security",
-        ])
+        "Topic :: Security"])
