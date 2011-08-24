@@ -7,7 +7,7 @@ from twisted.internet import reactor
 from twisted.trial.unittest import TestCase
 from twisted.web import server, resource
 
-from minitrue import proxy
+from minitrue import misdirection, proxy
 from minitrue.utils import StringIO, Constructor
 from minitrue.test.observer import ObserverMixin, SubstringObserver
 from minitrue.test.connect import getWithProxy, getWithoutProxy
@@ -56,18 +56,19 @@ requestManglingProxyConstructor = _MinitrueConstructor()
 responseManglingProxyConstructor = _MinitrueConstructor()
 
 
-@misdirectingProxyConstructor.kwarg
+@misdirectingProxyConstructor.kwarg(kwargName="requestMangler")
+@misdirection.misdirector
 def misdirector(url):
     """
     Misdirects requests to The Book towards a reputable news source.
     """
+    url = urlparse.urlsplit(url)
     if url.path == "/book":
-        return url._replace(path="/news")
+        url = url._replace(path="/news")
+        return urlparse.urlunsplit(url)
 
-    return
 
-
-@requestManglingProxyConstructor.kwarg
+@requestManglingProxyConstructor.kwarg()
 def requestMangler(request):
     """
     Modifies requests for oldspeak into requests for newspeak.
@@ -76,7 +77,7 @@ def requestMangler(request):
     headers.setRawHeaders("Accept-Language", ["newspeak"])
 
 
-@responseManglingProxyConstructor.kwarg
+@responseManglingProxyConstructor.kwarg()
 def responseMangler(response):
     """
     Modifies some response content, because the chocolate rations have

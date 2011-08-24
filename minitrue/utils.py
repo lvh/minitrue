@@ -12,12 +12,15 @@ class Constructor(object):
         self.kw = {}
 
 
-    def kwarg(self, f):
+    def kwarg(self, kwargName=None):
         """
         Decorator to pass a function as a kwarg on construction.
         """
-        self.kw[f.__name__] = f
-        return f
+        def decorator(f):
+            name = f.__name__ if kwargName is None else kwargName
+            self.kw[name] = f
+            return f
+        return decorator
 
 
     def __call__(self):
