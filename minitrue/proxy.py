@@ -8,7 +8,6 @@ try: # pragma: no cover
 except ImportError:
     import StringIO
 
-from twisted.python import log
 from twisted.web import http, proxy
 
 
@@ -173,9 +172,8 @@ class MinitrueRequest(proxy.ProxyRequest):
     """
     protocols = {'http': MinitrueClientFactory}
 
-    def __init__(self, channel, queued, misdirector, responseMangler):
+    def __init__(self, channel, queued, responseMangler):
         proxy.ProxyRequest.__init__(self, channel, queued)
-        self.misdirector = misdirector
         self.responseMangler = responseMangler
 
 
@@ -185,14 +183,13 @@ class MinitrueRequest(proxy.ProxyRequest):
         """
         self.mangle()
 
-        url = self._getURL()
-
+        url = urlparse.urlsplit(self.uri)
         host, port = self._getHostAndPort(url.netloc, url.scheme)
-        path = _getRestOfURL(url)
+        rest = _getRestOfURL(url)
         headers = self._buildHeaders(host)
         
         builder = self._getClientFactoryBuilder(url.scheme)
-        clientFactory = builder(path=path, headers=headers)
+        clientFactory = builder(path=rest, headers=headers)
         self.reactor.connectTCP(host, port, clientFactory)
 
 
@@ -223,27 +220,6 @@ class MinitrueRequest(proxy.ProxyRequest):
             port = int(port)
 
         return host, port
-
-
-    def _getURL(self):
-        """
-        Gets the target URL for this request.
-
-        This applies the misdirect function to the split URL. If the URL has
-        changed, this change is logged.
-        """
-        original = urlparse.urlsplit(self.uri)
-        if self.misdirector is None:
-            return original
-        misdirected = self.misdirector(original)
-
-        if misdirected is None:
-            return original
-        elif misdirected != original:
-            src, dest = map(urlparse.urlunsplit, [original, misdirected])
-            log.msg("Misdirecting %s to %s" % (src, dest))
-
-        return misdirected
 
 
     def _buildHeaders(self, host):
@@ -296,9 +272,8 @@ class MinitrueFactory(http.HTTPFactory):
     protocol = Minitrue
     noisy = False
 
-    def __init__(self, misdirector=None, requestMangler=None, responseMangler=None):
+    def __init__(self, requestMangler=None, responseMangler=None):
         http.HTTPFactory.__init__(self)
-        self.misdirector = misdirector
         self.requestMangler = requestMangler
         self.responseMangler = responseMangler
 
@@ -308,5 +283,4 @@ class MinitrueFactory(http.HTTPFactory):
         Creates a new proxy protocol instance to talk to the client.
         """
         return self.protocol(requestMangler=self.requestMangler,
-                             responseMangler=self.responseMangler,
-                             misdirector=self.misdirector)
+                             responseMangler=self.responseMangler)
