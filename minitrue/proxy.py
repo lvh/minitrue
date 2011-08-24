@@ -120,7 +120,7 @@ class MinitrueClient(proxy.ProxyClient):
         if self._finished:
             return
         self._finished = True
-            
+
         self.transport.loseConnection()
         self.mangler(self.response)
         self._replayContent()
