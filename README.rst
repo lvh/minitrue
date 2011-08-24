@@ -2,7 +2,7 @@
  minitrue
 ==========
 
-minitrue is an HTTP proxy server designed to lie.
+minitrue is a proxy server designed to lie.
 
 There are three main tools in its arsenal of deception: misdirection,
 request mangling and response mangling.

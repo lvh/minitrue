@@ -1,14 +1,14 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
 setup(name='minitrue',
       version='0',
-      description='',
+      description='Proxy designed to lie.',
       url='https://github.com/lvh/minitrue',
 
       author='Laurens Van Houtven',
       author_email='_@lvh.cc',
 
-      packages=['minitrue'],
+      packages=find_packages(),
 
       install_requires=['twisted'],
 
