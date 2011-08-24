@@ -8,9 +8,9 @@ from twisted.trial.unittest import TestCase
 from twisted.web import server, resource
 
 from minitrue import proxy
+from minitrue.utils import StringIO, Constructor
 from minitrue.test.observer import ObserverMixin, SubstringObserver
 from minitrue.test.connect import getWithProxy, getWithoutProxy
-from minitrue.test.utils import Constructor
 
 
 class _News(resource.Resource):
@@ -77,15 +77,16 @@ def requestMangler(request):
 
 
 @responseManglingProxyConstructor.kwarg
-def responseMangler(url, content):
+def responseMangler(response):
     """
     Modifies some response content, because the chocolate rations have
     ostensibly not been decreased.
     """
-    if "news" in url.path:
-        return content.replace("decreased", "increased")
+    request = response.client.father
+    content = response.content.getvalue()
 
-    return content
+    if "news" in request.uri:
+        response.content = StringIO(content.replace("decreased", "increased"))
 
 
 

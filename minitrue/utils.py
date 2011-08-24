@@ -1,6 +1,12 @@
 """
-Random testing utilities that don't really belong anywhere in particular.
-'"""
+Generically useful utilities.
+"""
+try: # pragma: no cover
+    from cStringIO import StringIO; StringIO
+except ImportError:
+    from StringIO import StringIO; StringIO
+
+
 class Constructor(object):
     def __init__(self):
         self.kw = {}
