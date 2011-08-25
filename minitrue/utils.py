@@ -25,3 +25,11 @@ class Constructor(object):
 
     def __call__(self):
         return self.factory(**self.kw)
+
+
+
+def passthrough(f):
+    def callback(result, *a, **kw):
+        f(*a, **kw)
+        return result
+    return callback

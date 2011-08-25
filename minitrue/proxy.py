@@ -8,7 +8,10 @@ try: # pragma: no cover
 except ImportError:
     import StringIO
 
+from twisted.internet import defer
 from twisted.web import http, proxy
+
+from minitrue.utils import passthrough
 
 
 class _Response(object):
@@ -121,9 +124,9 @@ class MinitrueClient(proxy.ProxyClient):
         self._finished = True
 
         self.transport.loseConnection()
-        self.mangler(self.response)
-        self._replayContent()
-        self.father.transport.loseConnection()
+        d = defer.maybeDeferred(self.mangler, self.response)
+        d.addCallback(passthrough(self._replayContent))
+        d.addCallback(passthrough(self.father.transport.loseConnection))
 
 
     def _replayContent(self):
@@ -171,6 +174,7 @@ class MinitrueRequest(proxy.ProxyRequest):
     server on behalf of the client.
     """
     protocols = {'http': MinitrueClientFactory}
+    mangler = None
 
     def __init__(self, channel, queued, responseMangler):
         proxy.ProxyRequest.__init__(self, channel, queued)
@@ -181,8 +185,17 @@ class MinitrueRequest(proxy.ProxyRequest):
         """
         Processes this request.
         """
-        self.mangle()
+        if self.mangler is not None:
+            d = defer.maybeDeferred(self.mangler, self)
+            d.addCallback(passthrough(self._finishProcessing))
+        else:
+            self._finishProcessing()
 
+
+    def _finishProcessing(self):
+        """
+        Finish processing the mangled request.
+        """
         url = urlparse.urlsplit(self.uri)
         host, port = self._getHostAndPort(url.netloc, url.scheme)
         rest = _getRestOfURL(url)
@@ -191,12 +204,6 @@ class MinitrueRequest(proxy.ProxyRequest):
         builder = self._getClientFactoryBuilder(url.scheme)
         clientFactory = builder(path=rest, headers=headers)
         self.reactor.connectTCP(host, port, clientFactory)
-
-
-    def mangle(self):
-        """
-        No-op request mangler.
-        """
 
 
     def _getClientFactoryBuilder(self, scheme):
@@ -256,10 +263,7 @@ class Minitrue(proxy.Proxy):
         kwargs.update(self.kwargs)
 
         request = self.requestFactoryClass(*args, **kwargs)
-        if self.requestMangler is not None:
-            def mangle():
-                self.requestMangler(request)
-            request.mangle = mangle
+        request.mangler = self.requestMangler
 
         return request
 
