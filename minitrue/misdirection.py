@@ -27,11 +27,6 @@ def misdirector(f):
     return requestMangler
 
 
-def replace(url, **kw):
-    split = urlparse.urlsplit(url)._replace(**kw)
-    return urlparse.urlunsplit(split)
-
-
 def affectHostnames(hostnames):
     def accessor(url):
         hostname = urlparse.urlsplit(url).hostname

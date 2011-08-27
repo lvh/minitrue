@@ -1,6 +1,8 @@
 """
 Generically useful utilities.
 """
+import urlparse
+
 try: # pragma: no cover
     from cStringIO import StringIO; StringIO
 except ImportError:
@@ -33,3 +35,8 @@ def passthrough(f):
         f(*a, **kw)
         return result
     return callback
+
+
+def replace(url, **kw):
+    split = urlparse.urlsplit(url)._replace(**kw)
+    return urlparse.urlunsplit(split)

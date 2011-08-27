@@ -148,6 +148,7 @@ class MinitrueClientFactory(proxy.ProxyClientFactory):
     noisy = False
 
     def __init__(self, father, method, path, headers, content, mangler=None):
+        self.father = father
         self.protocolArgs = father, method, path, headers, content, mangler
 
 
@@ -207,6 +208,7 @@ class MinitrueRequest(proxy.ProxyRequest):
 
 
     def _getClientFactoryBuilder(self, scheme):
+        scheme = scheme or "http"
         cls = self.protocols[scheme]
         mangler = self.responseMangler
         builder = functools.partial(cls, father=self, method=self.method,
@@ -221,6 +223,7 @@ class MinitrueRequest(proxy.ProxyRequest):
         The host and port are derived from the netloc. If the netloc does not
         specify the port, the default port for the specified scheme is used.
         """
+        scheme = scheme or "http"
         host, port = netloc, self.ports[scheme]
         if ":" in host:
             host, port = host.split(":")
