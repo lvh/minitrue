@@ -40,3 +40,19 @@ def passthrough(f):
 def replace(url, **kw):
     split = urlparse.urlsplit(url)._replace(**kw)
     return urlparse.urlunsplit(split)
+
+
+
+class Combined(object):
+    def __init__(self):
+        self._fs = []
+
+
+    def part(self, f):
+        self._fs.append(f)
+        return f
+
+
+    def __call__(self, *a, **kw):
+        for f in self._fs:
+            f(*a, **kw)
