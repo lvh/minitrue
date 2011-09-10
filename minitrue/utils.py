@@ -3,6 +3,9 @@ Generically useful utilities.
 """
 import urlparse
 
+from twisted.internet import defer
+from twisted.python import log
+
 try: # pragma: no cover
     from cStringIO import StringIO; StringIO
 except ImportError:
@@ -54,5 +57,13 @@ class Combined(object):
 
 
     def __call__(self, *a, **kw):
+        ds = [defer.maybeDeferred(f, *a, **kw) for f in self._fs]
+        return defer.DeferredList(ds)
+
+
+
+class OrderedCombined(Combined):
+    @defer.inlineCallbacks
+    def __call__(self, *a, **kw):
         for f in self._fs:
-            f(*a, **kw)
+            yield defer.maybeDeferred(f, *a, **kw)
