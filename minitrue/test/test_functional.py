@@ -84,7 +84,7 @@ def responseMangler(response):
     ostensibly not been decreased.
     """
     request = response.client.father
-    content = response.content.getvalue()
+    content = response.content.read()
 
     if "news" in request.uri:
         response.content = StringIO(content.replace("decreased", "increased"))
