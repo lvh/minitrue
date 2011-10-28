@@ -124,6 +124,7 @@ class MinitrueClient(proxy.ProxyClient):
         self._finished = True
 
         self.transport.loseConnection()
+        self.response.content.seek(0, 0)
         d = defer.maybeDeferred(self.mangler, self.response)
         d.addCallback(passthrough(self._replayContent))
         d.addCallback(passthrough(self.father.transport.loseConnection))
