@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 setup(name='minitrue',
-      version='1',
+      version='20130126',
       description='Proxy designed to lie.',
       url='https://github.com/lvh/minitrue',
 
